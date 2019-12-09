@@ -143,6 +143,22 @@ az openshift create --resource-group $CLUSTER_NAME --name $CLUSTER_NAME -l $LOCA
 > redoing the steps with a different cluster name in [Create a new app registration](howto-aad-app-configuration.md#create-an-azure-ad-app-registration), omitting the
 > step of creating a new user and security group.
 
+### Optional: Connect the cluster to Azure Monitoring
+
+First, get the identifier of the **existing** workspace resource. The identifier will be of the form:
+
+`/subscriptions/{subscription}/resourceGroups/{resourcegroup/providers/Microsoft.OperationalInsights/workspaces/{workspace-id}`.
+
+_To create a loganalytics workspace see [Create loganalytics workspace](../azure-monitor/learn/quick-create-workspace-cli.md)_
+
+If you **want** to add Azure monitoring, use the following command which adds the `--workspace-id` flag: 
+
+
+```bash
+az openshift create --resource-group $CLUSTER_NAME --name $CLUSTER_NAME -l $LOCATION --aad-client-app-id $APPID --aad-client-app-secret $SECRET --aad-tenant-id $TENANT --customer-admin-group-id $GROUPID --workspace-id $WORKSPACE_ID
+```
+
+
 After a few minutes, `az openshift create` will complete.
 
 ### Get the sign in URL for your cluster
