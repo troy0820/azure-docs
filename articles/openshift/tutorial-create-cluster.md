@@ -118,6 +118,20 @@ VNET_ID=$(az network vnet show -n {VNET name} -g {VNET resource group} --query i
 
 For example: `VNET_ID=$(az network vnet show -n MyVirtualNetwork -g MyResourceGroup --query id -o tsv`
 
+### Optional: Connect the cluster to Azure Monitoring
+
+First, get the identifier of the **existing** log-analytics workspace. The identifier will be of the form:
+
+`/subscriptions/{subscription}/resourceGroups/{resourcegroup}/providers/Microsoft.OperationalInsights/workspaces/{workspace-id}`.
+
+_To create a loganalytics workspace see [Create loganalytics workspace](../azure-monitor/learn/quick-create-workspace-cli.md)_
+
+Define a WORKSPACE_ID variable using the following CLI command in a BASH shell:
+
+```bash
+WORKSPACE_ID=$(az monitor log-analytics workspace show -g {RESOURCE_GROUP} -n {NAME} --query id -o tsv)
+```
+
 ### Create the cluster
 
 You're now ready to create a cluster. The following will create the cluster in the specified Azure AD tenant, specify the Azure AD app object and secret to use as a security principal, and the security group that contains the members that have admin access to the cluster.
@@ -125,7 +139,7 @@ You're now ready to create a cluster. The following will create the cluster in t
 > [!IMPORTANT]
 > Make sure you have correctly added the appropriate permissions for the Azure AD app as [detailed here](howto-aad-app-configuration.md#add-api-permissions) before creating the cluster
 
-If you are **not** peering your cluster to a virtual network, use the following command:
+If you are **not** peering your cluster to a virtual network or **do not** want Azure Monitoring, use the following command:
 
 ```bash
 az openshift create --resource-group $CLUSTER_NAME --name $CLUSTER_NAME -l $LOCATION --aad-client-app-id $APPID --aad-client-app-secret $SECRET --aad-tenant-id $TENANT --customer-admin-group-id $GROUPID
@@ -137,26 +151,19 @@ If you **are** peering your cluster to a virtual network, use the following comm
 az openshift create --resource-group $CLUSTER_NAME --name $CLUSTER_NAME -l $LOCATION --aad-client-app-id $APPID --aad-client-app-secret $SECRET --aad-tenant-id $TENANT --customer-admin-group-id $GROUPID --vnet-peer $VNET_ID
 ```
 
+If you **want** Azure Monitoring with your cluster use the following command which adds the `--workspace-id` flag:
+
+```bash
+az openshift create --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME -l $LOCATION --aad-client-app-id $APPID --aad-client-app-secret $SECRET --aad-tenant-id $TENANT --customer-admin-group-id $GROUPID --workspace-id $WORKSPACE_ID
+```
+
 > [!NOTE]
 > If you get an error that the host name is not available, it may be because your
 > cluster name is not unique. Try deleting your original app registration and
 > redoing the steps with a different cluster name in [Create a new app registration](howto-aad-app-configuration.md#create-an-azure-ad-app-registration), omitting the
 > step of creating a new user and security group.
 
-### Optional: Connect the cluster to Azure Monitoring
 
-First, get the identifier of the **existing** workspace resource. The identifier will be of the form:
-
-`/subscriptions/{subscription}/resourceGroups/{resourcegroup/providers/Microsoft.OperationalInsights/workspaces/{workspace-id}`.
-
-_To create a loganalytics workspace see [Create loganalytics workspace](../azure-monitor/learn/quick-create-workspace-cli.md)_
-
-If you **want** to add Azure monitoring, use the following command which adds the `--workspace-id` flag: 
-
-
-```bash
-az openshift create --resource-group $CLUSTER_NAME --name $CLUSTER_NAME -l $LOCATION --aad-client-app-id $APPID --aad-client-app-secret $SECRET --aad-tenant-id $TENANT --customer-admin-group-id $GROUPID --workspace-id $WORKSPACE_ID
-```
 
 
 After a few minutes, `az openshift create` will complete.
