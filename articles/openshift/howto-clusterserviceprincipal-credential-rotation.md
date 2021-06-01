@@ -24,7 +24,6 @@ To check the version of Azure CLI run:
 ```azurecli-interactive
 # Azure CLI version
 az -v
-
 ```
 Minimum Azure CLI version:
 ```bash
@@ -35,6 +34,8 @@ azure-cli                         2.24.0
 To install or upgrade [Azure CLI](https://github.com/Azure/azure-cli) please follow these [steps](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
 
 ## ClusterServicePrincipal Credential Rotation
+>[!IMPORTANT]
+>  ClusterServicePrincipal credential rotation can take upwards of 2 hours depending on cluster state.
 
 ClusterServicePrincipal credential rotation has two methods:
  - Automated ClusterServicePrincipal credential rotation 
